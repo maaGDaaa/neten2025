@@ -7,7 +7,6 @@ QUEUE_SIZE = 5
 WAVELENGTHS = 4
 TRANSMISSION_PROBABILITY = 0.5
 
-# Initialize the computers and their wavelengths
 computers = [
     {"queue": [], "wavelength": i // 2} for i in range(NUM_COMPUTERS)
 ]
@@ -18,29 +17,23 @@ def simulate(p_arrival, slots=10000):
     lost_packets = 0
 
     for _ in range(slots):
-        # Step 1: Arrival of packets
         for computer in computers:
             if len(computer["queue"]) < QUEUE_SIZE and random.random() < p_arrival:
-                # Add packet to queue
                 computer["queue"].append({"arrival_time": _})
             elif len(computer["queue"]) >= QUEUE_SIZE and random.random() < p_arrival:
-                # Otherwise packet is lost
                 lost_packets += 1
 
-        # Step 2: Transmission phase
         transmission_count = [0] * WAVELENGTHS
         transmitting_computers = [[] for _ in range(WAVELENGTHS)]
 
         for i, computer in enumerate(computers):
             if computer["queue"] and random.random() < TRANSMISSION_PROBABILITY:
-                # Attempt to transmit
                 wavelength = computer["wavelength"]
                 transmission_count[wavelength] += 1
                 transmitting_computers[wavelength].append(i)
 
         for wavelength, transmission_list in enumerate(transmitting_computers):
             if transmission_count[wavelength] == 1:
-                # Successful transmission
                 computer_index = transmission_list[0]
                 packet = computers[computer_index]["queue"].pop(0)
                 successful_transmissions += 1
@@ -51,13 +44,11 @@ def simulate(p_arrival, slots=10000):
     loss_rate = lost_packets / (slots * NUM_COMPUTERS)
     return avg_delay, throughput, loss_rate
 
-# Variables for probabilities
 probabilities = np.linspace(0.1, 1.0, 10)
 avg_delays = []
 throughputs = []
 loss_rates = []
 
-# Run the simulation for different probabilities
 for p in probabilities:
     avg_delay, throughput, loss_rate = simulate(p)
     avg_delays.append(avg_delay)
